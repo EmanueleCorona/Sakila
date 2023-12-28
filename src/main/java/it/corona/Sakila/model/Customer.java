@@ -3,7 +3,6 @@ package it.corona.Sakila.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,11 +12,15 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NamedQueries({
+        @NamedQuery(name = "findByCustomerId", query = "SELECT c FROM Customer c WHERE c.customerId = :customerId"),
+        @NamedQuery(name = "findByCustomerEmail", query = "SELECT c FROM Customer c WHERE c.email = :email"),
+})
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id", nullable = false)
-    private Long id;
+    private Long customerId;
 
     @Column(length = 45, nullable = false)
     private String firstName;
@@ -42,12 +45,10 @@ public class Customer {
     private Date lastUpdate;
 
     @JsonIgnore
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Payment> payments = new ArrayList<>();
 
     @JsonIgnore
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Rental> rentals = new ArrayList<>();
 }
